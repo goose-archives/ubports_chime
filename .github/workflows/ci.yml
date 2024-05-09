@@ -1,0 +1,27 @@
+name: Ubuntu Build
+run-name: ci-build
+on: [push]
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt install bc bison build-essential ca-certificates cpio curl flex git kmod libssl-dev libtinfo5 python2 sudo unzip wget xz-utils img2simg jq
+      - run: echo Enviroment set up.
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Build
+      - run: rm -r build && git clone https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools.git -b main ./build
+      - run: ./build/build.sh
+      - name: Deploy images (fakeota preparing)
+        run: |
+          ./build/prepare-fake-ota.sh out/device_chime_usrmerge.tar.xz ota
+      - name: Deploy images (systemimage)
+        run: |
+          ./build/system-image-from-ota.sh ota/ubuntu_command out/
+          mv out/rootfs.img out/ubuntu.img
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Device tarballs and Ubuntu image
+          path: out/*
+          
