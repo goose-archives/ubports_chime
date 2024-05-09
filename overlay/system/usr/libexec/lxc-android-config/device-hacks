@@ -1,0 +1,4 @@
+# HACK: Enable WI-FI patches
+sudo modprobe wlan
+echo ON > /dev/wlan
+
